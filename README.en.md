@@ -29,7 +29,7 @@ The first example is a fictional weekly report written from scratch, with number
 
 Targets Windows10/11 x64; actual checks currently cover Windows10 Pro22H2. Windows11 and clean-machine checks are pending. Network images are not downloaded. Mermaid and HTML layouts are kept as source with warnings; equation layout is not promised. Markdown preview and arbitrary-document pagination are not provided.
 
-Current checks cover 44 core tests, 23 desktop checks, 53 portable checks and 38 trial-material checks. All 16 pages from 13 fixed samples were reviewed through Word 15.0 / Build15.0.5589 PDF exports. Clean Windows10/11, actual offline installation, native desktop interaction and real-user trials remain pending. GitHub Actions runs Windows builds and tests.
+Current checks cover 44 core tests, 23 desktop checks, 53 portable checks and 38 trial-material checks. All 16 pages from 13 fixed samples were reviewed through Word 15.0 / Build15.0.5589 PDF exports. The maintainer has confirmed installation, conversion and uninstall on a real machine; the tested Windows/package versions and offline status are awaiting details. Remaining clean-machine and native desktop interaction checks are tracked separately. Non-developer trials are deferred for this round. GitHub Actions runs Windows builds and tests.
 
 ## Build and licensing
 

@@ -5,6 +5,9 @@
     { "id": "clean-windows10-offline", "status": "pending", "evidence": null },
     { "id": "clean-windows11-offline", "status": "pending", "evidence": null },
     { "id": "manual-desktop-and-word", "status": "pending", "evidence": null },
-    { "id": "three-user-trial", "status": "pending", "evidence": null }
+    { "id": "owner-install-convert-uninstall", "status": "passed", "evidence": "docs/实机验证记录.md" }
+  ],
+  "deferredChecks": [
+    { "id": "three-user-trial", "status": "deferred", "scope": "first-public-release", "reason": "Owner explicitly deferred non-developer user trials on 2026-10-23.", "evidence": "docs/实机验证记录.md" }
   ]
 }

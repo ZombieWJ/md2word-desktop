@@ -148,7 +148,7 @@ try {
         Copy-Item -LiteralPath $file -Destination $target
         [ordered]@{ path = $file; sha256 = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant() }
     }
-    $manifest = [ordered]@{ version = $appVersion; buildId = $buildId; builtAt = (Get-Date).ToUniversalTime().ToString('o'); sourceBaseCommit = (& git rev-parse HEAD); sourceHasLocalChanges = [bool](& git status --porcelain); sourceFiles = @($sourceHashes); runtimeIdentifier = $config.runtimeIdentifier; runtimeVersion = $config.runtimeVersion; publicReleaseReady = [bool]$PublicRelease; pendingChecks = @($pendingChecks.id); signing = 'unsigned'; distribution = 'installer-primary-portable-secondary' }
+    $manifest = [ordered]@{ version = $appVersion; buildId = $buildId; builtAt = (Get-Date).ToUniversalTime().ToString('o'); sourceBaseCommit = (& git rev-parse HEAD); sourceHasLocalChanges = [bool](& git status --porcelain); sourceFiles = @($sourceHashes); runtimeIdentifier = $config.runtimeIdentifier; runtimeVersion = $config.runtimeVersion; publicReleaseReady = [bool]$PublicRelease; pendingChecks = @($pendingChecks.id); deferredChecks = @($readiness.deferredChecks); signing = 'unsigned'; distribution = 'installer-primary-portable-secondary' }
     Write-Json $manifest (Join-Path $app 'BUILD.json')
     $materials = Join-Path $releaseRoot 'source-materials'
     New-Item -ItemType Directory -Path $materials -Force | Out-Null

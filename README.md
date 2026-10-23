@@ -1,5 +1,7 @@
 # md2word · 中文Markdown转Word桌面工具
 
+[![Windows构建与测试](https://github.com/ZombieWJ/md2word-desktop/actions/workflows/windows.yml/badge.svg?branch=main)](https://github.com/ZombieWJ/md2word-desktop/actions/workflows/windows.yml)
+
 将Markdown批量转换为可编辑的Word，针对中文标题、编号和表格优化，支持离线使用。
 
 [English](README.en.md) · [Windows安装包状态](#试用与下载) · [查看转换样例](#转换效果) · [开发指南](docs/开发指南.md)
@@ -22,6 +24,8 @@
 ## 试用与下载
 
 **正式安装包尚未开放下载。** 当前源码包含可运行的桌面程序、CLI、模板和构建脚本，开发者可按[开发指南](docs/开发指南.md)构建试用。软件包的未完成项见[发布状态](release/RELEASE-STATUS.md)。
+
+包含Pandoc的安装包需先补齐其完整对应源码与构建材料，源码仓库的公开不代表该项已经完成。
 
 软件发行计划以离线Windows安装包为主，备用提供完整便携ZIP。安装后从开始菜单打开“Markdown转Word”，添加文件并开始转换。
 
@@ -78,7 +82,7 @@
 - 44项核心与23项桌面自动检查通过；覆盖真实转换、队列、取消、异常和文件保护。
 - 本机安装与覆盖升级、53项便携检查、38项试用材料检查通过。
 - Microsoft Word15.0/Build15.0.5589下13份固定样例的16个实际页面已逐页检查，未见表格越界、图片裁切或明显分页异常。
-- 干净Windows10/11环境、实际断网、完整系统交互和非开发用户试用仍待完成；固定样例通过不代表任意文档或其他软件版本通过。
+- 维护者已确认实机安装、转换和卸载通过；Windows及安装包版本、是否断网待补充。干净Windows10/11与完整系统交互的未验证范围继续保留，非开发用户试用安排后续。固定样例通过不代表任意文档或其他软件版本通过。
 
 检查方法与范围见[当前状态](docs/开发计划与验收.md)，展示采集方式见[展示说明](docs/展示验证记录.md)。GitHub Actions持续运行Windows构建和测试。
 
