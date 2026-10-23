@@ -17,7 +17,7 @@ public sealed class ConversionTests
     private static readonly string Root = FindRoot();
     private static readonly XNamespace Wn = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
     private static readonly ConversionResources Resources = new(
-        Path.Combine(Root, "pandoc-3.10", "pandoc.exe"),
+        Environment.GetEnvironmentVariable("MD2WORD_TEST_PANDOC") ?? Path.Combine(Root, "pandoc-3.10", "pandoc.exe"),
         Path.Combine(Root, "resources", "convert.lua"),
         Path.Combine(Root, "templates", "cn-general", "reference.docx"));
     private readonly string output = Path.Combine(Root, "artifacts", "test-runs", Guid.NewGuid().ToString("N"));

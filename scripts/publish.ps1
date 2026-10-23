@@ -1,5 +1,5 @@
 #Requires -Version 7.2
-param([switch]$DirectNetwork, [switch]$SkipInstaller, [switch]$PublicRelease)
+param([switch]$DirectNetwork, [switch]$SkipInstaller, [switch]$PublicRelease, [switch]$PreviewRelease, [string]$PandocBundleDirectory)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $config = Get-Content (Join-Path $projectRoot 'release/portable.json') -Raw | ConvertFrom-Json
@@ -8,6 +8,12 @@ $appVersion = $versions.Project.PropertyGroup.Version
 $appFileVersion = $versions.Project.PropertyGroup.FileVersion
 $readiness = Get-Content (Join-Path $projectRoot 'release/public-readiness.json') -Raw | ConvertFrom-Json
 $pendingChecks = @($readiness.checks | Where-Object { $_.status -ne 'passed' -or -not $_.evidence -or -not (Test-Path (Join-Path $projectRoot $_.evidence)) })
+if ($PreviewRelease) {
+    if ($PublicRelease -or -not $PandocBundleDirectory -or $appVersion -notmatch '^\d+\.\d+\.\d+-rc\.\d+$') { throw '预发布必须使用候选版本和已核对的Pandoc源码构建材料。' }
+    if (& git -C $projectRoot status --porcelain) { throw '预发布包必须来自干净源码。' }
+    $templateLicense = @($readiness.checks | Where-Object { $_.id -eq 'template-license' -and $_.status -eq 'passed' -and $_.evidence -and (Test-Path (Join-Path $projectRoot $_.evidence)) })
+    if ($templateLicense.Count -ne 1) { throw '模板公开许可尚未核对。' }
+}
 if ($PublicRelease) {
     if ($pendingChecks.Count -gt 0) { throw ('正式发行检查未完成：' + ($pendingChecks.id -join '、')) }
     if ($appVersion -match '-') { throw '正式发行版本不能使用候选版本号。' }
@@ -42,36 +48,49 @@ try {
     $app = Join-Path $releaseRoot $appName
     New-Item -ItemType Directory -Path $app -Force | Out-Null
 
-    # 使用官方ZIP验证来源；开发目录原件不被覆盖。
-    $archive = Join-Path $projectRoot ".tools/downloads/pandoc-$($config.pandocVersion)-windows-x86_64.zip"
-    if (-not (Test-Path -LiteralPath $archive)) {
-        New-Item -ItemType Directory -Path (Split-Path $archive) -Force | Out-Null
-        $webOptions = @{ Uri = $config.pandocArchiveUrl; OutFile = "$archive.partial"; TimeoutSec = 300 }
-        if ($DirectNetwork) { $webOptions.NoProxy = $true }
-        Invoke-WebRequest @webOptions
-        Move-Item -LiteralPath "$archive.partial" -Destination $archive
-    }
-    Assert-Hash $archive $config.pandocArchiveSha256
-    $official = Join-Path $releaseRoot 'work/pandoc'
-    Expand-Archive -LiteralPath $archive -DestinationPath $official
-    $officialPandoc = Join-Path $official "pandoc-$($config.pandocVersion)"
-    Assert-Hash (Join-Path $officialPandoc 'pandoc.exe') $config.pandocExeSha256
-    $comparisons = foreach ($file in Get-ChildItem -LiteralPath $officialPandoc -File) {
-        $local = Join-Path $projectRoot "pandoc-$($config.pandocVersion)/$($file.Name)"
-        $expected = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
-        Assert-Hash $local $expected
-        [ordered]@{ file = $file.Name; sha256 = $expected.ToLowerInvariant(); matchesLocal = $true }
+    if ($PandocBundleDirectory) {
+        $PandocBundleDirectory = [IO.Path]::GetFullPath($PandocBundleDirectory)
+        & (Join-Path $PSScriptRoot 'verify-pandoc-bundle.ps1') -BundleDirectory $PandocBundleDirectory
+        $pandocBuild = Get-Content (Join-Path $PandocBundleDirectory 'BUNDLE.json') -Raw | ConvertFrom-Json
+        $archive = Join-Path $PandocBundleDirectory 'pandoc-3.10-md2word-win-x64.zip'
+        $official = Join-Path $releaseRoot 'work/pandoc'
+        Expand-Archive -LiteralPath $archive -DestinationPath $official
+        $officialPandoc = Join-Path $official 'pandoc-3.10'
+        $sourceArchive = Join-Path $PandocBundleDirectory 'pandoc-3.10-corresponding-sources.zip'
+        $comparisons = @([ordered]@{ file = 'pandoc.exe'; sha256 = $pandocBuild.exeSha256; matchesSourceBuild = $true })
+        if ($PreviewRelease) { $pendingChecks = @($pendingChecks | Where-Object id -ne 'pandoc-corresponding-source') }
+    } else {
+        # 使用官方ZIP验证来源；开发目录原件不被覆盖。
+        $archive = Join-Path $projectRoot ".tools/downloads/pandoc-$($config.pandocVersion)-windows-x86_64.zip"
+        if (-not (Test-Path -LiteralPath $archive)) {
+            New-Item -ItemType Directory -Path (Split-Path $archive) -Force | Out-Null
+            $webOptions = @{ Uri = $config.pandocArchiveUrl; OutFile = "$archive.partial"; TimeoutSec = 300 }
+            if ($DirectNetwork) { $webOptions.NoProxy = $true }
+            Invoke-WebRequest @webOptions
+            Move-Item -LiteralPath "$archive.partial" -Destination $archive
+        }
+        Assert-Hash $archive $config.pandocArchiveSha256
+        $official = Join-Path $releaseRoot 'work/pandoc'
+        Expand-Archive -LiteralPath $archive -DestinationPath $official
+        $officialPandoc = Join-Path $official "pandoc-$($config.pandocVersion)"
+        Assert-Hash (Join-Path $officialPandoc 'pandoc.exe') $config.pandocExeSha256
+        $comparisons = foreach ($file in Get-ChildItem -LiteralPath $officialPandoc -File) {
+            $local = Join-Path $projectRoot "pandoc-$($config.pandocVersion)/$($file.Name)"
+            $expected = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+            Assert-Hash $local $expected
+            [ordered]@{ file = $file.Name; sha256 = $expected.ToLowerInvariant(); matchesLocal = $true }
+        }
+        $sourceArchive = "third_party/pandoc/$($config.pandocVersion)/pandoc-$($config.pandocVersion)-source.tar.gz"
+        if (-not (Test-Path -LiteralPath $sourceArchive)) {
+            $sourceOptions = @{ Uri = "https://github.com/jgm/pandoc/archive/refs/tags/$($config.pandocVersion).tar.gz"; OutFile = "$sourceArchive.partial"; TimeoutSec = 180 }
+            if ($DirectNetwork) { $sourceOptions.NoProxy = $true }
+            Invoke-WebRequest @sourceOptions
+            Assert-Hash "$sourceArchive.partial" $config.pandocSourceSha256
+            Move-Item -LiteralPath "$sourceArchive.partial" -Destination $sourceArchive
+        }
+        Assert-Hash $sourceArchive $config.pandocSourceSha256
     }
     Assert-Hash 'templates/cn-general/reference.docx' $config.templateSha256
-    $sourceArchive = "third_party/pandoc/$($config.pandocVersion)/pandoc-$($config.pandocVersion)-source.tar.gz"
-    if (-not (Test-Path -LiteralPath $sourceArchive)) {
-        $sourceOptions = @{ Uri = "https://github.com/jgm/pandoc/archive/refs/tags/$($config.pandocVersion).tar.gz"; OutFile = "$sourceArchive.partial"; TimeoutSec = 180 }
-        if ($DirectNetwork) { $sourceOptions.NoProxy = $true }
-        Invoke-WebRequest @sourceOptions
-        Assert-Hash "$sourceArchive.partial" $config.pandocSourceSha256
-        Move-Item -LiteralPath "$sourceArchive.partial" -Destination $sourceArchive
-    }
-    Assert-Hash $sourceArchive $config.pandocSourceSha256
     foreach ($license in Get-Content 'third_party/licenses/sources.json' -Raw | ConvertFrom-Json) {
         Assert-Hash (Join-Path 'third_party/licenses' $license.file) $license.sha256
     }
@@ -119,7 +138,9 @@ try {
         $inventory += [ordered]@{ id = $id; version = $version; type = $packageLibraries[$identity].type; packageSha512 = (Get-Content -LiteralPath $hashFile.FullName -Raw).Trim(); nugetContentHash = $cacheMetadata.contentHash; source = $cacheMetadata.source; license = $metadata.package.metadata.license.InnerText; repository = $metadata.package.metadata.repository.url; commit = $metadata.package.metadata.repository.commit; bundledNoticeFiles = @($texts | ForEach-Object Name) }
     }
     Write-Json $inventory (Join-Path $app 'DEPENDENCIES.json')
-    Write-Json ([ordered]@{ archiveUrl = $config.pandocArchiveUrl; archiveSha256 = $config.pandocArchiveSha256; releaseAssets = 'https://github.com/jgm/pandoc/releases/expanded_assets/3.10'; files = @($comparisons); correspondingSourceComplete = $false }) (Join-Path $app 'pandoc/SOURCE.json')
+    if (-not $PandocBundleDirectory) {
+        Write-Json ([ordered]@{ archiveUrl = $config.pandocArchiveUrl; archiveSha256 = $config.pandocArchiveSha256; releaseAssets = 'https://github.com/jgm/pandoc/releases/expanded_assets/3.10'; files = @($comparisons); correspondingSourceComplete = $false }) (Join-Path $app 'pandoc/SOURCE.json')
+    }
 
     # 记录模板属性，不改动参考文件及其历史元数据。
     $template = [IO.Compression.ZipFile]::OpenRead((Join-Path $app 'templates/cn-general/reference.docx'))
@@ -148,7 +169,7 @@ try {
         Copy-Item -LiteralPath $file -Destination $target
         [ordered]@{ path = $file; sha256 = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant() }
     }
-    $manifest = [ordered]@{ version = $appVersion; buildId = $buildId; builtAt = (Get-Date).ToUniversalTime().ToString('o'); sourceBaseCommit = (& git rev-parse HEAD); sourceHasLocalChanges = [bool](& git status --porcelain); sourceFiles = @($sourceHashes); runtimeIdentifier = $config.runtimeIdentifier; runtimeVersion = $config.runtimeVersion; publicReleaseReady = [bool]$PublicRelease; pendingChecks = @($pendingChecks.id); deferredChecks = @($readiness.deferredChecks); signing = 'unsigned'; distribution = 'installer-primary-portable-secondary' }
+    $manifest = [ordered]@{ version = $appVersion; buildId = $buildId; builtAt = (Get-Date).ToUniversalTime().ToString('o'); sourceBaseCommit = (& git rev-parse HEAD); sourceHasLocalChanges = [bool](& git status --porcelain); sourceFiles = @($sourceHashes); runtimeIdentifier = $config.runtimeIdentifier; runtimeVersion = $config.runtimeVersion; publicReleaseReady = [bool]$PublicRelease; previewDownloadReady = [bool]$PreviewRelease; pandocProvider = $(if ($PandocBundleDirectory) { 'md2word-source-build' } else { 'upstream-binary' }); pendingChecks = @($pendingChecks.id); deferredChecks = @($readiness.deferredChecks); signing = 'unsigned'; distribution = 'installer-only-portable-local' }
     Write-Json $manifest (Join-Path $app 'BUILD.json')
     $materials = Join-Path $releaseRoot 'source-materials'
     New-Item -ItemType Directory -Path $materials -Force | Out-Null

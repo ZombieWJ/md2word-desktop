@@ -1,0 +1,65 @@
+name: Build offline installer preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful Pandoc source-build run ID
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    if: github.repository == 'ZombieWJ/md2word-desktop' && github.ref == 'refs/heads/main'
+    runs-on: windows-2022
+    timeout-minutes: 35
+    permissions:
+      contents: write
+      actions: read
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Validate build selection
+        env:
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          if ($env:SOURCE_RUN_ID -notmatch '^\d+$') { throw 'Expected a numeric source-build run ID.' }
+      - uses: actions/download-artifact@v7
+        with:
+          name: pandoc-3.10-source-build-${{ inputs.source_run_id }}
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: .tools/pandoc-bundle
+      - name: Verify source materials and prepare tools
+        run: |
+          ./scripts/verify-pandoc-bundle.ps1 -BundleDirectory .tools/pandoc-bundle
+          Expand-Archive .tools/pandoc-bundle/pandoc-3.10-md2word-win-x64.zip .tools/pandoc-preview
+          "MD2WORD_TEST_PANDOC=$PWD/.tools/pandoc-preview/pandoc-3.10/pandoc.exe" >> $env:GITHUB_ENV
+          ./scripts/bootstrap.ps1
+          ./scripts/bootstrap-inno.ps1
+      - name: Build and test against the bundled Pandoc
+        run: |
+          ./scripts/build.ps1 -SkipTests
+          & ./.tools/dotnet/dotnet.exe test tests/Md2Word.Tests/Md2Word.Tests.csproj --no-build -c Release --logger 'trx;LogFileName=preview-core.trx' --results-directory artifacts/test-results
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./.tools/dotnet/dotnet.exe test tests/Md2Word.Desktop.Tests/Md2Word.Desktop.Tests.csproj --no-build -c Release --logger 'trx;LogFileName=preview-desktop.trx' --results-directory artifacts/test-results
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Package and verify installer payload
+        run: |
+          ./scripts/publish.ps1 -PreviewRelease -PandocBundleDirectory .tools/pandoc-bundle
+          $directories = @(Get-ChildItem artifacts/releases -Directory)
+          if ($directories.Count -ne 1) { throw 'Expected one preview directory.' }
+          ./scripts/verify-portable.ps1 -ReleaseDirectory $directories[0].FullName
+      - name: Upload installer and sources to an unpublished draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $directories = @(Get-ChildItem artifacts/releases -Directory)
+          ./scripts/upload-preview.ps1 -ReleaseDirectory $directories[0].FullName

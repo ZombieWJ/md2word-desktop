@@ -16,7 +16,7 @@ namespace Md2Word.Desktop.Tests;
 public sealed class DesktopTests
 {
     private static readonly string Root = FindRoot();
-    private static readonly ConversionResources Resources = ConversionResources.FromApplicationDirectory(Path.Combine(Root, "pandoc-3.10/pandoc.exe"));
+    private static readonly ConversionResources Resources = ConversionResources.FromApplicationDirectory(Environment.GetEnvironmentVariable("MD2WORD_TEST_PANDOC") ?? Path.Combine(Root, "pandoc-3.10/pandoc.exe"));
     private readonly string workspace = Path.Combine(Root, "artifacts", "desktop-test-runs", Guid.NewGuid().ToString("N"));
 
     [ModuleInitializer]
