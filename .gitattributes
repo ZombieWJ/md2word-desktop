@@ -1,1 +1,2 @@
 examples/showcase/*.md text eol=lf
+third_party/licenses/*-LICENSE.txt text eol=lf
