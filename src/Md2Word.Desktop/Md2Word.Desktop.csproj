@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationIcon>../../resources/branding/app.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Md2Word.Core/Md2Word.Core.csproj" />
+    <EmbeddedResource Include="../../resources/branding/app.ico" LogicalName="Md2Word.AppIcon" />
+    <Content Include="../../resources/**/*" Link="resources/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../templates/cn-general/reference.docx" Link="templates/cn-general/reference.docx" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
