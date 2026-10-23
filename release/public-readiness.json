@@ -1,0 +1,10 @@
+{
+  "checks": [
+    { "id": "template-license", "status": "passed", "evidence": "templates/cn-general/SOURCE.md" },
+    { "id": "pandoc-corresponding-source", "status": "pending", "evidence": null },
+    { "id": "clean-windows10-offline", "status": "pending", "evidence": null },
+    { "id": "clean-windows11-offline", "status": "pending", "evidence": null },
+    { "id": "manual-desktop-and-word", "status": "pending", "evidence": null },
+    { "id": "three-user-trial", "status": "pending", "evidence": null }
+  ]
+}

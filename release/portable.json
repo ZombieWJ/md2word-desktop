@@ -1,0 +1,10 @@
+{
+  "runtimeIdentifier": "win-x64",
+  "runtimeVersion": "10.0.13",
+  "pandocVersion": "3.10",
+  "pandocArchiveUrl": "https://github.com/jgm/pandoc/releases/download/3.10/pandoc-3.10-windows-x86_64.zip",
+  "pandocArchiveSha256": "bb808d00fd58762299d64582a9b4c3e4b106cd929e62c5f19bcdcb496f1e54ae",
+  "pandocExeSha256": "0e5d21f8b10537048ad5ba31d575d0792286fe682172fe67ea7267bccd1cabf8",
+  "pandocSourceSha256": "fc82815542c29802d087c25e2c1421146030806b71255ec40fc0e828fe1df877",
+  "templateSha256": "23745cb4252ad4643731e8615a48cab570f4a8f6a90c1607f30179a413cc7971"
+}
