@@ -41,7 +41,10 @@ function Run-PackagedProcess([string]$Executable, [string[]]$Arguments, [bool]$V
 
 function Check([string]$Name, [bool]$Passed, $Detail) {
     $records.Add([ordered]@{ name = $Name; passed = $Passed; detail = $Detail })
-    if (-not $Passed) { throw "便携检查失败：$Name" }
+    if (-not $Passed) {
+        if ($null -ne $Detail) { Write-Host ($Detail | Out-String) }
+        throw "便携检查失败：$Name"
+    }
 }
 
 function Verify-Docx([string]$Path, [bool]$ExpectImage) {
