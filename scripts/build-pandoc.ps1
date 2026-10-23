@@ -3,6 +3,7 @@ param()
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $config = Get-Content (Join-Path $root 'release/pandoc-build.json') -Raw | ConvertFrom-Json
+$indexState = if ($config.indexState -is [datetime]) { $config.indexState.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ', [Globalization.CultureInfo]::InvariantCulture) } else { [string]$config.indexState }
 if ((& ghc --numeric-version).Trim() -ne $config.ghcVersion -or (& cabal --numeric-version).Trim() -ne $config.cabalVersion) { throw 'Haskell tool versions do not match the pinned configuration.' }
 $work = Join-Path $root 'artifacts/pandoc-build'
 if (Test-Path -LiteralPath $work) { throw 'Pandoc build directory already exists; use a fresh build workspace.' }
@@ -36,7 +37,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Cabal configuration failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Hackage secure index update failed.' }
 Push-Location (Join-Path $source 'pandoc-3.10')
 try {
-    & cabal build pandoc-cli:exe:pandoc --dry-run -fembed_data_files -fserver -flua "--index-state=$($config.indexState)" "--builddir=$work/solver"
+    & cabal build pandoc-cli:exe:pandoc --dry-run -fembed_data_files -fserver -flua "--index-state=$indexState" "--builddir=$work/solver"
     if ($LASTEXITCODE -ne 0) { throw 'Dependency resolution failed.' }
 } finally { Pop-Location }
 Copy-Item -LiteralPath (Join-Path $work 'solver/cache/plan.json') -Destination (Join-Path $provenance 'resolved-plan.json')
