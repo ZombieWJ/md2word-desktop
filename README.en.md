@@ -1,0 +1,38 @@
+# md2word
+
+Batch-convert Markdown into editable Word documents, with formatting rules for Chinese headings, numbering and tables. Designed for offline use on Windows x64.
+
+[中文说明](README.md) · [Examples](examples/showcase/README.md) · [Contributing](CONTRIBUTING.md)
+
+![Actual conversion walkthrough assembled from WinForms captures and Word-rendered pages](docs/assets/demo.gif)
+
+This 24-second, five-step walkthrough uses real running controls and actual conversions, with adjusted frame durations. It shows a fictional work report and a document containing the user-provided project image. It is not a continuous screen recording or a performance benchmark.
+
+## What it does
+
+- Converts multiple UTF-8 GFM Markdown files into editable DOCX documents.
+- Offers a Chinese formatting preset or preserves list types, starting numbers and emphasis.
+- Embeds local PNG/JPEG images, avoids overwriting existing documents, and supports cancellation and retry.
+- Includes a desktop application and a CLI sharing the same conversion core.
+
+## Try it
+
+There is no public installer download yet. The source includes a working desktop application, CLI, templates and build scripts; follow the [development guide](docs/开发指南.md) to build it. The planned primary download is an offline, per-user Windows installer, with a complete portable ZIP as a secondary option. Conversion requires no Word installation.
+
+The main button processes pending and cancelled items only. Retry failed items separately, or explicitly reconvert completed selections through the context menu. Results can be opened or revealed in Explorer. Installed settings are stored in LocalAppData/md2word and survive upgrades and uninstall; portable settings remain beside the executable when portable.flag is present.
+
+Real inputs and downloadable DOCX outputs are linked from the [Chinese README](README.md#转换效果). Examples use synthetic content and were visually checked through Microsoft Word 15.0 / Build15.0.5589 PDF exports.
+
+The first example is a fictional weekly report written from scratch, with numbered headings (1, 2, 3, 3.1, 3.2), a progress table on the first page, and detailed plans for feedback follow-up and workflow checks. It contains no real business records. The image example also uses numbered headings, preserves hexadecimal 0xFF and binary 0b1010, and embeds the user-provided project cover without modifying its image data.
+
+## Current limits
+
+Targets Windows10/11 x64; actual checks currently cover Windows10 Pro22H2. Windows11 and clean-machine checks are pending. Network images are not downloaded. Mermaid and HTML layouts are kept as source with warnings; equation layout is not promised. Markdown preview and arbitrary-document pagination are not provided.
+
+Current checks cover 44 core tests, 23 desktop checks, 53 portable checks and 38 trial-material checks. All 16 pages from 13 fixed samples were reviewed through Word 15.0 / Build15.0.5589 PDF exports. Clean Windows10/11, actual offline installation, native desktop interaction and real-user trials remain pending. GitHub Actions runs Windows builds and tests.
+
+## Build and licensing
+
+See the [development guide](docs/开发指南.md) for the pinned SDK, verified Pandoc setup, builds, tests and CLI usage. After building, run `pwsh -File .\scripts\start.ps1` to launch the desktop application. Development scripts require PowerShell 7.2 or later.
+
+Own code and the owner-authored CN-General template are MIT. Template permission is recorded in its SOURCE.md. Other dependencies retain their own licensing. Complete corresponding source materials for the bundled Pandoc and clean-machine checks remain pending. See [release status](release/RELEASE-STATUS.md) and [third-party notices](THIRD-PARTY-NOTICES.md).

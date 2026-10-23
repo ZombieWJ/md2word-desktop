@@ -1,0 +1,55 @@
+{
+  "scope": "三份固定合成样例，不代表所有输入或Word版本；首例为从零编写的虚构工作文档",
+  "renderer": "Microsoft Word → PDF → Poppler PNG，具体版本见各样例",
+  "visualReview": "见docs/展示验证记录.md中的人工页面检查；生成脚本不自动判定视觉通过",
+  "uiCapture": "WinForms DrawToBitmap，实际运行并转换三份输入；非操作系统屏幕录像",
+  "demoDurationSeconds": 24,
+  "demoFrames": 5,
+  "demoSteps": [
+    "1  打开工具",
+    "2  添加多个文件",
+    "3  查看转换结果",
+    "4  检查Word效果",
+    "5  保留文字与图片"
+  ],
+  "imageSource": {
+    "path": "examples/showcase/assets/md2word-cover.png",
+    "sha256": "3e26c78622ac207cedf757a5d999494918c736380b0115dff0a8186c7b2e41b3",
+    "provenance": "项目所有者提供的项目介绍图；与项目分享封面相同"
+  },
+  "samples": [
+    {
+      "input": "examples/showcase/work-report.md",
+      "inputSha256": "bcd64b3a613e7691eed38530650806c5fd00868dc02d1bddff71f9a2a4d88e09",
+      "docx": "examples/showcase/output/work-report.docx",
+      "docxSha256": "1ecfe838746f3c442ae7b1d1c01c1e539fa5f7a60c32df1433e9c465c9fa1b15",
+      "page": "docs/assets/work-report-word.png",
+      "pageSha256": "f20f98310b24fb744acf145faec61a4c81180f0a0be5e2d7f50544eef670d053",
+      "exportedPdfPages": 1,
+      "wordVersion": "15.0",
+      "wordBuild": "15.0.5589"
+    },
+    {
+      "input": "examples/showcase/table.md",
+      "inputSha256": "bd5b84e29ab83e6727d6f21b771334ccce0824b49e6eb8898eba657bd2699032",
+      "docx": "examples/showcase/output/table.docx",
+      "docxSha256": "03f8ca3b25fa53800028a003de2901f6e011866261609af0bd4bebf321618276",
+      "page": "docs/assets/table-word.png",
+      "pageSha256": "b770b438180c65e400557f47b44c5f9557f5dc99232e8c964eb05d805201a372",
+      "exportedPdfPages": 1,
+      "wordVersion": "15.0",
+      "wordBuild": "15.0.5589"
+    },
+    {
+      "input": "examples/showcase/mixed-images.md",
+      "inputSha256": "315a5eabbb6314dca18049853a569566abe702ba87ebe596464758884d5881de",
+      "docx": "examples/showcase/output/mixed-images-numbered.docx",
+      "docxSha256": "e303de9d2ab64c745f220fc5f861a1baa7731de9033a611d2c6a1b26d18deed2",
+      "page": "docs/assets/mixed-images-word.png",
+      "pageSha256": "4a0d64db8df4a8cfdc435e4d80649678ad2fd209fc4d7ce8fb60f9da3b7eb799",
+      "exportedPdfPages": 1,
+      "wordVersion": "15.0",
+      "wordBuild": "15.0.5589"
+    }
+  ]
+}
