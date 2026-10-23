@@ -15,6 +15,7 @@ if ($PreviewRelease) {
     if ($templateLicense.Count -ne 1) { throw '模板公开许可尚未核对。' }
 }
 if ($PublicRelease) {
+    if (-not $PandocBundleDirectory) { throw '正式发行须提供已经核对的Pandoc完整源码构建材料。' }
     if ($pendingChecks.Count -gt 0) { throw ('正式发行检查未完成：' + ($pendingChecks.id -join '、')) }
     if ($appVersion -match '-') { throw '正式发行版本不能使用候选版本号。' }
     if (& git -C $projectRoot status --porcelain) { throw '正式包必须来自干净源码。' }
@@ -173,14 +174,31 @@ try {
     Write-Json $manifest (Join-Path $app 'BUILD.json')
     $materials = Join-Path $releaseRoot 'source-materials'
     New-Item -ItemType Directory -Path $materials -Force | Out-Null
+    Write-Json $manifest (Join-Path $materials 'BUILD.json')
     Compress-Archive -Path (Join-Path $snapshot '*') -DestinationPath (Join-Path $materials 'md2word-source.zip')
     # Compress-Archive忽略隐藏文件，显式补入Git忽略规则。
     $sourceZip = [IO.Compression.ZipFile]::Open((Join-Path $materials 'md2word-source.zip'), [IO.Compression.ZipArchiveMode]::Update)
     try {
         if (-not $sourceZip.GetEntry('.gitignore')) { [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($sourceZip, (Join-Path $snapshot '.gitignore'), '.gitignore') | Out-Null }
     } finally { $sourceZip.Dispose() }
-    Copy-Item -LiteralPath $sourceArchive, 'third_party/pandoc/3.10/SOURCE.md', 'third_party/pandoc/3.10/SHA256SUMS.txt', 'release/RELEASE-STATUS.md' -Destination $materials
-    Write-Json $manifest (Join-Path $materials 'BUILD.json')
+    if ($PandocBundleDirectory) {
+        Copy-Item -LiteralPath $sourceArchive, 'release/RELEASE-STATUS.md' -Destination $materials
+        Copy-Item -LiteralPath (Join-Path $PandocBundleDirectory 'BUNDLE.json') -Destination (Join-Path $materials 'PANDOC-BUNDLE.json')
+        @"
+# Pandoc对应源码材料
+
+本安装候选使用md2word自行构建的Pandoc$($pandocBuild.version)，不是官方发布二进制。程序SHA256：$($pandocBuild.exeSha256)。
+
+$([IO.Path]::GetFileName($sourceArchive))包含实际参与构建的Pandoc源码、依赖源码包及精确Cabal修订、编译器及Windows配套源码、许可证和实际构建计划。具体依赖数量及版本见归档中的清单。
+
+源码归档SHA256：$($pandocBuild.sourceArchiveSha256)。构建记录：$($pandocBuild.workflow)。解压该归档后的README.md提供离线重建命令；编译工具需另行准备。
+
+PANDOC-BUNDLE.json连接原始程序、源码归档与构建记录；BUILD.json和md2word-source.zip对应本次应用源码。开发目录保留的官方程序不作为本候选二进制来源。
+"@ | Set-Content (Join-Path $materials 'SOURCE.md') -Encoding utf8
+        Get-ChildItem -LiteralPath $materials -File | Where-Object Name -ne 'SHA256SUMS.txt' | Sort-Object Name | ForEach-Object { ((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()) + '  ' + $_.Name } | Set-Content (Join-Path $materials 'SHA256SUMS.txt') -Encoding utf8
+    } else {
+        Copy-Item -LiteralPath $sourceArchive, 'third_party/pandoc/3.10/SOURCE.md', 'third_party/pandoc/3.10/SHA256SUMS.txt', 'release/RELEASE-STATUS.md' -Destination $materials
+    }
     function Write-PayloadManifest {
       Get-ChildItem -LiteralPath $app -Recurse -File | Where-Object Name -ne 'FILES.json' | Sort-Object FullName | ForEach-Object {
         [ordered]@{ path = [IO.Path]::GetRelativePath($app, $_.FullName).Replace('\', '/'); sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); fileVersion = [Diagnostics.FileVersionInfo]::GetVersionInfo($_.FullName).FileVersion }
