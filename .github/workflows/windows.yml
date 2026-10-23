@@ -1,0 +1,44 @@
+name: Windows build and tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Prepare pinned SDK
+        run: ./scripts/bootstrap.ps1
+      - name: Prepare verified Pandoc
+        run: ./scripts/bootstrap-pandoc.ps1
+      - name: Build solution
+        run: ./scripts/build.ps1 -SkipTests
+      - name: Run conversion and desktop checks
+        run: |
+          $env:DOTNET_ROOT = Join-Path $PWD '.tools/dotnet'
+          $env:DOTNET_CLI_HOME = Join-Path $PWD '.tools/cli-home'
+          $env:NUGET_PACKAGES = Join-Path $PWD '.tools/nuget'
+          & ./.tools/dotnet/dotnet.exe test tests/Md2Word.Tests/Md2Word.Tests.csproj --no-build -c Release --logger 'trx;LogFileName=ci-core.trx' --results-directory artifacts/test-results
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./.tools/dotnet/dotnet.exe test tests/Md2Word.Desktop.Tests/Md2Word.Desktop.Tests.csproj --no-build -c Release --logger 'trx;LogFileName=ci-desktop.trx' --results-directory artifacts/test-results
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Retain test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-test-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/test-results/
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,18 @@
+name: 使用建议
+description: 说明使用场景、当前困难和期望行为。
+title: "[建议] "
+body:
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 使用场景与当前困难
+      description: 使用可公开的例子，不包含客户或内部资料。
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: 期望怎样处理
+      description: 请描述结果，可以附上简短Markdown样例。
+    validations:
+      required: true
