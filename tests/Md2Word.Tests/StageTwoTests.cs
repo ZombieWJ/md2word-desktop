@@ -18,6 +18,20 @@ public sealed class StageTwoTests
         Path.Combine(Root, "templates", "cn-general", "reference.docx"));
     private readonly string output = Path.Combine(Root, "artifacts", "test-runs", Guid.NewGuid().ToString("N"));
 
+    [Fact]
+    public async Task ChineseResourceDirectoryPreservesLocalImagesAndOutput()
+    {
+        var resourcesDirectory = Directory.CreateDirectory(Path.Combine(output, "中文 程序", "resources")).FullName;
+        var filter = Path.Combine(resourcesDirectory, "convert.lua");
+        File.Copy(Resources.FilterPath, filter);
+        var converter = new ConversionService(Resources with { FilterPath = filter });
+        var result = await converter.ConvertAsync(new(Fixture("local-images.md"), Path.Combine(output, "中文 结果"), DocumentTemplate.CnGeneral));
+        Assert.Equal(ConversionStatus.Succeeded, result.Status);
+        using var document = WordprocessingDocument.Open(result.OutputPath!, false);
+        Assert.Equal(2, document.MainDocumentPart!.ImageParts.Count());
+        Assert.Contains("图片之后的内容必须保留", document.MainDocumentPart.Document!.InnerText);
+    }
+
     [Theory]
     [InlineData("local-images.md", 2)]
     [InlineData("large-image.md", 1)]

@@ -46,14 +46,16 @@ public sealed class ConversionService(ConversionResources resources)
             temporaryDocx = Path.Combine(outputDirectory, $".md2word-{token}.docx");
             temporaryJson = Path.Combine(outputDirectory, $".md2word-{token}.json");
             await File.WriteAllTextAsync(temporaryJson, ast.ToJsonString(), new UTF8Encoding(false), cancellationToken).ConfigureAwait(false);
+            var filterPath = Path.GetFullPath(resources.FilterPath);
             var arguments = new List<string>
             {
-                "--from=json", "--to=docx", "--standalone", "--lua-filter", resources.FilterPath,
+                "--from=json", "--to=docx", "--standalone", "--lua-filter", Path.GetFileName(filterPath),
                 "--resource-path", sourceDirectory, "--output", temporaryDocx, temporaryJson
             };
             if (request.Template == DocumentTemplate.CnGeneral) arguments.AddRange(["--reference-doc", resources.ReferencePath]);
             progress?.Report(new("生成Word"));
-            var generated = await PandocProcess.RunAsync(resources.PandocPath, arguments, sourceDirectory, cancellationToken).ConfigureAwait(false);
+            // Lua加载器使用系统代码页处理文件名，规则文件以相对名称加载，兼容中文安装目录。
+            var generated = await PandocProcess.RunAsync(resources.PandocPath, arguments, Path.GetDirectoryName(filterPath)!, cancellationToken).ConfigureAwait(false);
             EnsureSuccess(generated);
             CollectDiagnostic(generated, warnings);
             cancellationToken.ThrowIfCancellationRequested();
