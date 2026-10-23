@@ -47,6 +47,12 @@ try {
         $file = @($inventory | Where-Object path -eq $name)
         if ($file.Count -ne 1 -or $file[0].sha256 -ne $compiler.sha256) { throw 'Compiler source archive is missing or changed.' }
     }
+    foreach ($supplement in $pinned.supplementalLicenses) {
+        foreach ($name in @("source/vendor/$($supplement.package)/LICENSE.upstream", "source/vendor/$($supplement.sourcePackage)/$($supplement.sourceFile)")) {
+            $file = @($inventory | Where-Object path -eq $name)
+            if ($file.Count -ne 1 -or $file[0].sha256 -ne $supplement.sha256) { throw 'Supplemental shared upstream license is missing or changed.' }
+        }
+    }
 } finally { $sourceZip.Dispose() }
 $binaryZip = [IO.Compression.ZipFile]::OpenRead($binaryPath)
 try {

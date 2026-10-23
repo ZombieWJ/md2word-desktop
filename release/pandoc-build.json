@@ -5,7 +5,12 @@
   "sourceSha256": "fc82815542c29802d087c25e2c1421146030806b71255ec40fc0e828fe1df877",
   "ghcVersion": "9.10.3",
   "cabalVersion": "3.14.2.0",
+  "buildJobs": 4,
+  "pandocModuleJobs": 2,
   "indexState": "2026-10-22T00:00:00Z",
+  "supplementalLicenses": [
+    { "package": "happy-lib-2.2", "sourcePackage": "happy-2.2", "sourceFile": "LICENSE", "sha256": "079dc8e9d7f062d789196fd8733ee252ebadeb265726f70fef14753b52432bbc" }
+  ],
   "compilerSources": [
     { "url": "https://downloads.haskell.org/ghc/9.10.3/ghc-9.10.3-src.tar.xz", "sha256": "d266864b9e0b7b741abe8c9d6a790d7c01c21cf43a1419839119255878ebc59a" },
     { "url": "https://downloads.haskell.org/ghc/9.10.3/ghc-9.10.3-windows-extra-src.tar.xz", "sha256": "baf3fd6bb34306f0ce54d87e7a08cccfb4c229b8474805facbd9cae3f9dc421c" }

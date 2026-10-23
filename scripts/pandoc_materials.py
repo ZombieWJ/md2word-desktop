@@ -27,6 +27,10 @@ def load(path):
     return json.loads(Path(path).read_text(encoding='utf-8-sig'))
 
 
+def notice_files(folder):
+    return [path for path in folder.rglob('*') if path.is_file() and re.match(r'^(license|licence|copying|copyright|notice)([.\-_]|$)', path.name, re.I)]
+
+
 def prepare(work, cabal_root):
     materials = work / 'materials'
     source = materials / 'source'
@@ -103,6 +107,20 @@ def prepare(work, cabal_root):
     if wanted:
         raise ValueError('Exact Cabal revisions missing from secure index: ' + repr(list(wanted)))
 
+    config = load(materials / 'provenance/pandoc-build.json')
+    for supplement in config.get('supplementalLicenses', []):
+        if supplement['package'] not in packages or supplement['sourcePackage'] not in packages:
+            raise ValueError('Supplemental license packages are not in the build plan')
+        original = vendor / supplement['sourcePackage'] / supplement['sourceFile']
+        if digest(original) != supplement['sha256']:
+            raise ValueError('Supplemental upstream license checksum mismatch')
+        shutil.copyfile(original, vendor / supplement['package'] / 'LICENSE.upstream')
+        packages[supplement['package']]['supplementalLicense'] = supplement
+    missing = [identity for identity in sorted(packages) if not notice_files(vendor / identity)]
+    if missing:
+        raise ValueError('Dependency license texts missing before compilation: ' + ', '.join(missing))
+    print('All dependency license texts collected before compilation', flush=True)
+
     locations = ['pandoc-3.10', 'pandoc-3.10/pandoc-cli', 'pandoc-3.10/pandoc-lua-engine', 'pandoc-3.10/pandoc-server', 'vendor/*']
     lines = ['packages: ' + '\n          '.join(locations), 'active-repositories: :none',
              'optimization: 1', 'tests: False', 'benchmarks: False', '']
@@ -117,7 +135,10 @@ def prepare(work, cabal_root):
         flags[name] = current
     for name, values in sorted(flags.items()):
         if values:
-            lines += ['package ' + name, '  flags: ' + ' '.join(('+' if value else '-') + flag for flag, value in sorted(values.items())), '']
+            lines += ['package ' + name, '  flags: ' + ' '.join(('+' if value else '-') + flag for flag, value in sorted(values.items()))]
+            if name == 'pandoc':
+                lines.append('  ghc-options: -j' + str(config['pandocModuleJobs']))
+            lines.append('')
     (source / 'cabal.project').write_text('\n'.join(lines) + '\n', encoding='utf-8')
     write_json(materials / 'provenance/dependency-sources.json', packages)
 
@@ -193,7 +214,7 @@ def package(work):
     licenses = binary / 'licenses'
     for identity, item in dependencies.items():
         folder = source / 'vendor' / identity
-        notices = [p for p in folder.rglob('*') if p.is_file() and re.match(r'^(license|licence|copying|copyright|notice)([.\-_]|$)', p.name, re.I)]
+        notices = notice_files(folder)
         if not notices:
             raise ValueError('Dependency license text missing: ' + identity)
         for path in notices + [folder / (item['name'] + '.cabal')]:

@@ -45,7 +45,9 @@ Copy-Item -LiteralPath (Join-Path $work 'solver/cache/plan.json') -Destination (
 if ($LASTEXITCODE -ne 0) { throw 'Dependency source collection failed.' }
 Push-Location $source
 try {
-    & cabal build pandoc-cli:exe:pandoc --offline --project-file=cabal.project "--builddir=$work/offline-build" -j2
+    $jobs = [Math]::Max(1, [Math]::Min([Environment]::ProcessorCount, [int]$config.buildJobs))
+    "cabal build pandoc-cli:exe:pandoc --offline --project-file=cabal.project -j$jobs" | Set-Content (Join-Path $provenance 'build-command.txt') -Encoding utf8
+    & cabal build pandoc-cli:exe:pandoc --offline --project-file=cabal.project "--builddir=$work/offline-build" "-j$jobs"
     if ($LASTEXITCODE -ne 0) { throw 'Building from archived local sources failed.' }
     & cabal freeze --offline --project-file=cabal.project "--builddir=$work/offline-build"
     if ($LASTEXITCODE -ne 0) { throw 'Recording dependency constraints failed.' }
