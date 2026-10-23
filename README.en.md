@@ -17,7 +17,7 @@ This 24-second, five-step walkthrough uses real running controls and actual conv
 
 ## Try it
 
-There is no public installer download yet. The source includes a working desktop application, CLI, templates and build scripts; follow the [development guide](docs/开发指南.md) to build it. The planned primary download is an offline, per-user Windows installer, with a complete portable ZIP as a secondary option. Conversion requires no Word installation.
+There is no public installer download yet. The source includes a working desktop application, CLI, templates and build scripts; follow the [development guide](docs/开发指南.md) to build it. This release will offer an offline, per-user Windows installer; portable ZIPs remain local and are not uploaded. Source-material ZIPs are for development and license review. Conversion requires no Word installation.
 
 The main button processes pending and cancelled items only. Retry failed items separately, or explicitly reconvert completed selections through the context menu. Results can be opened or revealed in Explorer. Installed settings are stored in LocalAppData/md2word and survive upgrades and uninstall; portable settings remain beside the executable when portable.flag is present.
 
