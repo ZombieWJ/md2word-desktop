@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Md2Word.Core/Md2Word.Core.csproj" />
+    <Project Path="src/Md2Word.Cli/Md2Word.Cli.csproj" />
+    <Project Path="src/Md2Word.Desktop/Md2Word.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Md2Word.Tests/Md2Word.Tests.csproj" />
+    <Project Path="tests/Md2Word.Desktop.Tests/Md2Word.Desktop.Tests.csproj" />
+  </Folder>
+</Solution>

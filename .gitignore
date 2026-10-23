@@ -1,0 +1,13 @@
+.tools/
+**/bin/
+**/obj/
+artifacts/
+TestResults/
+.vs/
+*.user
+settings.json
+pandoc-3.10/
+third_party/**/*.tar.gz
+third_party/**/*.zip
+~$*
+__pycache__/
