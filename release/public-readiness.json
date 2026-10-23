@@ -1,7 +1,7 @@
 {
   "checks": [
     { "id": "template-license", "status": "passed", "evidence": "templates/cn-general/SOURCE.md" },
-    { "id": "pandoc-corresponding-source", "status": "pending", "evidence": null },
+    { "id": "pandoc-corresponding-source", "status": "passed", "evidence": "docs/Pandoc源码材料核对.md" },
     { "id": "clean-windows10-offline", "status": "pending", "evidence": null },
     { "id": "clean-windows11-offline", "status": "pending", "evidence": null },
     { "id": "manual-desktop-and-word", "status": "pending", "evidence": null },

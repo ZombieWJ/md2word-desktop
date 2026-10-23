@@ -4,7 +4,7 @@
 
 将Markdown批量转换为可编辑的Word，针对中文标题、编号和表格优化，支持离线使用。
 
-[English](README.en.md) · [Windows安装包状态](#试用与下载) · [查看转换样例](#转换效果) · [开发指南](docs/开发指南.md)
+[English](README.en.md) · [下载Windows预览版](#试用与下载) · [查看转换样例](#转换效果) · [开发指南](docs/开发指南.md)
 
 - **中文排版**：统一标题、自动编号和基础表格，保留正文中的强调。
 - **离线批量转换**：添加多个Markdown文件，逐个转换，本地图片随文档嵌入。
@@ -23,11 +23,11 @@
 
 ## 试用与下载
 
-**正式安装包尚未开放下载。** 当前源码包含可运行的桌面程序、CLI、模板和构建脚本，开发者可按[开发指南](docs/开发指南.md)构建试用。软件包的未完成项见[发布状态](release/RELEASE-STATUS.md)。
+**[下载Windows预览版安装包v0.1.0-rc.6](https://github.com/ZombieWJ/md2word-desktop/releases/download/v0.1.0-rc.6/md2word-0.1.0-rc.6-win-x64-Setup.exe)** · [版本说明、源码材料与校验值](https://github.com/ZombieWJ/md2word-desktop/releases/tag/v0.1.0-rc.6)
 
-包含Pandoc的安装包需先补齐其完整对应源码与构建材料，源码仓库的公开不代表该项已经完成。
+下载Setup.exe并安装，从开始菜单打开“Markdown转Word”，添加Markdown文件即可转换。当前为未签名预发布版，Windows11、干净电脑和完整系统交互仍待验证，详见[发布状态](release/RELEASE-STATUS.md)。
 
-本轮软件发行只提供离线Windows安装包，便携ZIP仅在本地保留，不上传。安装后从开始菜单打开“Markdown转Word”，添加文件并开始转换。
+本轮只提供离线Windows安装包，便携ZIP仅在本地保留，不上传。
 
 安装包包含运行时、Pandoc和模板，转换无需联网，也无需安装SDK、Pandoc或Word。查看和编辑结果需要能打开DOCX的软件。默认不创建桌面快捷方式，不改变文件关联；每次启动默认选择中文通用。
 
@@ -35,7 +35,7 @@
 
 安装版设置位于当前用户的LocalAppData/md2word。开发者如需自行构建便携包，见[开发指南](docs/开发指南.md)。
 
-本地候选包由[发布脚本](scripts/publish.ps1)生成在`artifacts/releases/`，不进入源码Git记录。正式Release将提供安装包、对应源码材料及校验值；源码材料ZIP供开发与许可核查使用，普通用户只需安装包。本地候选包未签名，不等同于正式发布就绪。
+预发布由[发布脚本](scripts/publish.ps1)生成，发布材料不进入源码Git记录。同一[Release](https://github.com/ZombieWJ/md2word-desktop/releases/tag/v0.1.0-rc.6)提供安装包、完整对应源码材料、体积报告及校验值；普通用户只需安装包，源码材料ZIP供开发与许可核查。当前预发布通过检查不等同于正式v0.1.0验收完成。
 
 ## 转换效果
 
@@ -79,9 +79,9 @@
 
 ## 验证状态
 
-- 44项核心与23项桌面自动检查通过；覆盖真实转换、队列、取消、异常和文件保护。
-- 本机安装与覆盖升级、53项便携检查、38项试用材料检查通过。
-- Microsoft Word15.0/Build15.0.5589下13份固定样例的16个实际页面已逐页检查，未见表格越界、图片裁切或明显分页异常。
+- 45项核心与23项桌面自动检查通过；覆盖真实转换、队列、取消、异常和文件保护。
+- 当前预发布的54项包内检查通过，包含真实转换、文件摘要、开发环境隔离和目录移动；历史本机安装与覆盖升级、38项试用材料检查通过。
+- 新Pandoc在Microsoft Word15.0/Build15.0.5589下完成16份固定及展示样例复核，共19个实际PDF页面已逐页检查，未见表格越界、图片裁切或明显分页异常。
 - 维护者已确认实机安装、转换和卸载通过；Windows及安装包版本、是否断网待补充。干净Windows10/11与完整系统交互的未验证范围继续保留，非开发用户试用安排后续。固定样例通过不代表任意文档或其他软件版本通过。
 
 检查方法与范围见[当前状态](docs/开发计划与验收.md)，展示采集方式见[展示说明](docs/展示验证记录.md)。GitHub Actions持续运行Windows构建和测试。
@@ -96,6 +96,6 @@
 
 ## 许可
 
-自有源码及[中文通用模板](templates/cn-general/LICENSE)采用MIT，模板所有者已明确确认授权，见[来源记录](templates/cn-general/SOURCE.md)。Pandoc及其他依赖保留各自许可；Pandoc完整对应源码材料及跨环境验证仍未齐全，当前候选包不作为正式公开发行版本。详情见[第三方说明](THIRD-PARTY-NOTICES.md)。
+自有源码及[中文通用模板](templates/cn-general/LICENSE)采用MIT，模板所有者已明确确认授权，见[来源记录](templates/cn-general/SOURCE.md)。Pandoc及其他依赖保留各自许可；当前预发布使用从归档源码构建的Pandoc，完整对应源码、精确依赖及构建材料与安装包在同一Release提供。跨环境验证仍待补充，正式v0.1.0尚未完成验收。详情见[第三方说明](THIRD-PARTY-NOTICES.md)。
 
 如果这个工具帮你省去了Word排版时间，欢迎点个Star。

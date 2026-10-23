@@ -17,7 +17,9 @@ This 24-second, five-step walkthrough uses real running controls and actual conv
 
 ## Try it
 
-There is no public installer download yet. The source includes a working desktop application, CLI, templates and build scripts; follow the [development guide](docs/开发指南.md) to build it. This release will offer an offline, per-user Windows installer; portable ZIPs remain local and are not uploaded. Source-material ZIPs are for development and license review. Conversion requires no Word installation.
+**[Download the Windows preview installer v0.1.0-rc.6](https://github.com/ZombieWJ/md2word-desktop/releases/download/v0.1.0-rc.6/md2word-0.1.0-rc.6-win-x64-Setup.exe)** · [Release notes, corresponding sources and checksums](https://github.com/ZombieWJ/md2word-desktop/releases/tag/v0.1.0-rc.6)
+
+Download Setup.exe, install it, and launch Markdown转Word from the Start menu. This is an unsigned offline, per-user Windows x64 prerelease. Portable application ZIPs are not uploaded. Ordinary users only need the installer; source-material ZIPs are for development and license review. Conversion requires no SDK, Pandoc or Word installation.
 
 The main button processes pending and cancelled items only. Retry failed items separately, or explicitly reconvert completed selections through the context menu. Results can be opened or revealed in Explorer. Installed settings are stored in LocalAppData/md2word and survive upgrades and uninstall; portable settings remain beside the executable when portable.flag is present.
 
@@ -29,10 +31,10 @@ The first example is a fictional weekly report written from scratch, with number
 
 Targets Windows10/11 x64; actual checks currently cover Windows10 Pro22H2. Windows11 and clean-machine checks are pending. Network images are not downloaded. Mermaid and HTML layouts are kept as source with warnings; equation layout is not promised. Markdown preview and arbitrary-document pagination are not provided.
 
-Current checks cover 44 core tests, 23 desktop checks, 53 portable checks and 38 trial-material checks. All 16 pages from 13 fixed samples were reviewed through Word 15.0 / Build15.0.5589 PDF exports. The maintainer has confirmed installation, conversion and uninstall on a real machine; the tested Windows/package versions and offline status are awaiting details. Remaining clean-machine and native desktop interaction checks are tracked separately. Non-developer trials are deferred for this round. GitHub Actions runs Windows builds and tests.
+The current preview passed 45 core tests, 23 desktop checks and 54 packaged checks. Historical trial-material checks total 38. With the source-built Pandoc, all 19 PDF pages from 16 fixed and showcase documents were visually reviewed through Word 15.0 / Build15.0.5589 exports. The maintainer has confirmed installation, conversion and uninstall on a real machine; the tested Windows/package versions and offline status are awaiting details. Remaining clean-machine and native desktop interaction checks are tracked separately. Non-developer trials are deferred for this round. GitHub Actions runs Windows builds and tests.
 
 ## Build and licensing
 
 See the [development guide](docs/开发指南.md) for the pinned SDK, verified Pandoc setup, builds, tests and CLI usage. After building, run `pwsh -File .\scripts\start.ps1` to launch the desktop application. Development scripts require PowerShell 7.2 or later.
 
-Own code and the owner-authored CN-General template are MIT. Template permission is recorded in its SOURCE.md. Other dependencies retain their own licensing. Complete corresponding source materials for the bundled Pandoc and clean-machine checks remain pending. See [release status](release/RELEASE-STATUS.md) and [third-party notices](THIRD-PARTY-NOTICES.md).
+Own code and the owner-authored CN-General template are MIT. Template permission is recorded in its SOURCE.md. Other dependencies retain their own licensing. The preview includes a source-built Pandoc, with complete corresponding sources, exact dependency revisions and build records available in the same Release. Clean-machine and remaining native interaction checks are pending; formal v0.1.0 acceptance is not complete. See [release status](release/RELEASE-STATUS.md) and [third-party notices](THIRD-PARTY-NOTICES.md).
