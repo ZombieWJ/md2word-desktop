@@ -1,0 +1,39 @@
+name: Build Pandoc with corresponding sources
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Prepare pinned Haskell tools
+        run: |
+          $config = Get-Content release/pandoc-build.json -Raw | ConvertFrom-Json
+          ghcup install ghc --set $config.ghcVersion
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ghcup install cabal --set $config.cabalVersion
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build only from archived dependency sources
+        run: ./scripts/build-pandoc.ps1
+      - name: Retain binary together with corresponding source materials
+        uses: actions/upload-artifact@v7
+        with:
+          name: pandoc-3.10-source-build-${{ github.run_id }}
+          path: artifacts/pandoc-build/output/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,13 @@
+{
+  "version": "3.10",
+  "sourceCommit": "9376458c26d25d222e5a898ede254ebb2f47ffbe",
+  "sourceUrl": "https://github.com/jgm/pandoc/archive/refs/tags/3.10.tar.gz",
+  "sourceSha256": "fc82815542c29802d087c25e2c1421146030806b71255ec40fc0e828fe1df877",
+  "ghcVersion": "9.10.3",
+  "cabalVersion": "3.14.2.0",
+  "indexState": "2026-10-22T00:00:00Z",
+  "compilerSources": [
+    { "url": "https://downloads.haskell.org/ghc/9.10.3/ghc-9.10.3-src.tar.xz", "sha256": "d266864b9e0b7b741abe8c9d6a790d7c01c21cf43a1419839119255878ebc59a" },
+    { "url": "https://downloads.haskell.org/ghc/9.10.3/ghc-9.10.3-windows-extra-src.tar.xz", "sha256": "baf3fd6bb34306f0ce54d87e7a08cccfb4c229b8474805facbd9cae3f9dc421c" }
+  ]
+}
